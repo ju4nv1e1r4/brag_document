@@ -1,4 +1,6 @@
-## 🏗️ Arquitetura de Serving Multi-Modelo (N+1 Worker)
+# Dezembro
+
+## rquitetura de Serving Multi-Modelo (N+1 Worker)
 
 **O Desafio:**
 Precisávamos escalar a utilização de IA na empresa, permitindo o uso de múltiplos modelos (Análise de Sentimento, Classificação Zero-Shot, etc.) sem aumentar linearmente os custos de infraestrutura ou a complexidade de deploy.
