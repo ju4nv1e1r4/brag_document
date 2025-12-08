@@ -1,0 +1,1 @@
+08/12/2025 -- Refatorei o worker de ML crítico da empresa. Implementei validação de tipos, padronizei chaves de Redis e adicionei estratégia de Fallback para garantir que o usuário nunca fique sem resposta, mesmo se o modelo cair. Reduzi a dívida técnica eliminando strings mágicas.
