@@ -2,7 +2,7 @@
 
 ## *05/12/2025*
 
-### 🚀 Otimização de Engenharia de Prompt e Arquitetura Neuro-Simbólica para Datas
+### Otimização de Engenharia de Prompt e Arquitetura Neuro-Simbólica para Datas
 
 **Contexto (O Problema):**
 O agente de IA sofria com "alucinações aritméticas" ao calcular datas relativas e falhava na interpretação do contexto de calendário.
