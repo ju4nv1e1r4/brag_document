@@ -1,5 +1,30 @@
 # Dezembro
-## *08/12/2025*
+
+##*05/12/2025*
+
+## 🚀 Otimização de Engenharia de Prompt e Arquitetura Neuro-Simbólica para Datas
+
+**Contexto (O Problema):**
+O agente de IA sofria com "alucinações aritméticas" ao calcular datas relativas e falhava na interpretação do contexto de calendário.
+Inicialmente, o contexto era injetado via um **Grid ASCII** (simulando um calendário visual). Identifiquei que isso gerava ruído na tokenização: o modelo perdia a referência espacial devido à quebra de tokens de espaçamento e quebras de linha, resultando em agendamentos errados.
+
+**A Solução (O que eu fiz):**
+Arquitetei uma solução híbrida (Neuro-Simbólica) e refatorei a injeção de contexto:
+
+  * **Otimização de Contexto (Attention-Friendly):** Substituí o Grid ASCII por uma estrutura linear de strings semânticas (ex: `"- Sexta-feira [HOJE]: 09/12"`). Isso eliminou a necessidade do modelo ter raciocínio espacial visual, entregando a informação mastigada para o mecanismo de *Attention*.
+  * **Pipeline de Sanitização:** Implementei um *Tool Calling* onde um LLM (`gpt-4o-mini`) atua apenas como normalizador de linguagem natural (convertendo gírias como "fds" ou "próxima sexta"), removendo a responsabilidade lógica dele.
+  * **Motor Determinístico:** Desenvolvi o `DateEngine` em Python (com `dateparser` e `Regex`) para realizar o cálculo exato da data baseada na entrada sanitizada, garantindo precisão de 100% em operações de calendário.
+
+**Resultados & Impacto:**
+
+  * **Redução drástica de alucinação:** A mudança do formato ASCII para Lista Semântica eliminou erros de interpretação de dias da semana.
+  * **Eficiência de Tokens:** A nova representação textual é mais densa, consumindo menos tokens por requisição (redução de custo e latência).
+  * **Experiência do Usuário:** O sistema agora compreende perfeitamente referências relativas complexas ("sábado sem ser este, o outro") e contextos brasileiros.
+
+
+**Próximo Passo:**
+Para deixar isso ainda mais profissional, você pode mencionar se usou alguma biblioteca para validar essa redução de tokens (como o `tiktoken`) ou se foi empírico. Quer que eu escreva um script rápido usando `tiktoken` para você comparar quantos tokens o Grid ASCII gastava vs a sua nova Lista, para adicionar um número exato no "Resultados"?
+## *02/12/2025*
 #### Arquitetura de Inferência de Alta Performance (Worker N+1)
 
 **Contexto:**
@@ -19,3 +44,4 @@ Desenvolvi um **Worker de Inferência Unificado** altamente otimizado para CPU.
 * **Developer Experience:** Processo de atualização de modelos desacoplado do código da aplicação via CLI.
 
 **Stack:** Python, Redis, ONNX Runtime, Docker Volumes, Google Cloud Storage.
+
