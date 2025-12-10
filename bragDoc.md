@@ -1,3 +1,9 @@
+# AVISO IMPORTANTE
+
+Este documento trata de informações verídicas mas o texto foi revisado e corrigido por um LLM, basicamente pra melhorar a escrita. 
+
+**Dica:** Use IA pra te ajudar a ir mais rapido onde você sabe que pode ir.
+
 # Dezembro
 
 ## *05/12/2025*
@@ -21,10 +27,8 @@ Arquitetei uma solução híbrida (Neuro-Simbólica) e refatorei a injeção de 
   * **Eficiência de Tokens:** A nova representação textual é mais densa, consumindo menos tokens por requisição (redução de custo e latência).
   * **Experiência do Usuário:** O sistema agora compreende perfeitamente referências relativas complexas ("sábado sem ser este, o outro") e contextos brasileiros.
 
-
-**Próximo Passo:**
-Para deixar isso ainda mais profissional, você pode mencionar se usou alguma biblioteca para validar essa redução de tokens (como o `tiktoken`) ou se foi empírico. Quer que eu escreva um script rápido usando `tiktoken` para você comparar quantos tokens o Grid ASCII gastava vs a sua nova Lista, para adicionar um número exato no "Resultados"?
 ## *02/12/2025*
+
 #### Arquitetura de Inferência de Alta Performance (Worker N+1)
 
 **Contexto:**
@@ -45,3 +49,23 @@ Desenvolvi um **Worker de Inferência Unificado** altamente otimizado para CPU.
 
 **Stack:** Python, Redis, ONNX Runtime, Docker Volumes, Google Cloud Storage.
 
+## *10/12/2025*
+
+## 🚀 Otimização de Contexto em LLM com Injeção Dinâmica via Redis
+
+**Contexto (O Problema):**
+O módulo de agendamento sofria com instabilidade nas respostas da LLM (alucinações) devido à poluição do contexto. Ao retornar listas extensas de horários diretamente no histórico da conversa, excedíamos a janela de atenção útil do modelo, fazendo com que ele se confundisse entre modalidades ou inventasse horários. Além disso, o fluxo se perdia quando dados intermediários (como CPF ou data de nascimento) eram solicitados, exigindo que o usuário reiniciasse a intenção.
+
+**A Solução (O que eu fiz):**
+Arquitetou-se um padrão de **Dynamic Context Injection** (Injeção Dinâmica de Contexto) para desacoplar a recuperação de dados da apresentação para a IA:
+
+* **Gerenciamento de Estado com Redis:** Implementação de uma estratégia de cache com TTL (10 min) para armazenar estados transientes da agenda (`ctx:agenda:today`, `ctx:agenda:instruction`).
+* **Higiene de Contexto:** Criação de lógica para limpar chaves conflitantes (ex: apagar horários quando o foco muda para escolha de modalidades), garantindo que a LLM tenha acesso apenas à "verdade" do momento atual.
+* **Pipeline de Injeção no System Prompt:** Desenvolvimento do método `_get_dynamic_agenda_context` que intercepta a construção do prompt e injeta os dados "quentes" do Redis diretamente nas instruções do sistema, mantendo o histórico de conversa do usuário limpo.
+* **Resiliência de Fluxo (State Recovery):** Implementação de verificação de "fluxo pendente" (ex: `was_booking_flow`). Se o sistema precisa interromper o agendamento para pedir um dado (ex: Data de Nascimento), ele agora "lembra" da intenção original e retoma a busca de aulas automaticamente após a inserção do dado.
+
+**Resultados & Impacto:**
+* **Redução de Alucinações:** A segregação entre instruções de fluxo e dados brutos aumentou significativamente a precisão do modelo ao sugerir horários.
+* **Otimização de Tokens:** Envio sob demanda de informações críticas apenas no System Prompt, economizando tokens de input no histórico longo.
+* **UX Mais Fluida:** O usuário não precisa mais repetir o comando "quero agendar" após fornecer um dado cadastral faltante; o sistema reconecta o fluxo automaticamente.
+* **Melhoria de Observabilidade:** Logs estruturados indicando quando o contexto dinâmico foi injetado ou quando falhou (tratamento de erro robusto no acesso ao Redis).
