@@ -51,7 +51,7 @@ Desenvolvi um **Worker de Inferência Unificado** altamente otimizado para CPU.
 
 ## *10/12/2025*
 
-## 🚀 Otimização de Contexto em LLM com Injeção Dinâmica via Redis
+## Otimização de Contexto em LLM com Injeção Dinâmica via Redis
 
 **Contexto (O Problema):**
 O módulo de agendamento sofria com instabilidade nas respostas da LLM (alucinações) devido à poluição do contexto. Ao retornar listas extensas de horários diretamente no histórico da conversa, excedíamos a janela de atenção útil do modelo, fazendo com que ele se confundisse entre modalidades ou inventasse horários. Além disso, o fluxo se perdia quando dados intermediários (como CPF ou data de nascimento) eram solicitados, exigindo que o usuário reiniciasse a intenção.
