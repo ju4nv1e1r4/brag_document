@@ -69,3 +69,22 @@ Arquitetou-se um padrão de **Dynamic Context Injection** (Injeção Dinâmica d
 * **Otimização de Tokens:** Envio sob demanda de informações críticas apenas no System Prompt, economizando tokens de input no histórico longo.
 * **UX Mais Fluida:** O usuário não precisa mais repetir o comando "quero agendar" após fornecer um dado cadastral faltante; o sistema reconecta o fluxo automaticamente.
 * **Melhoria de Observabilidade:** Logs estruturados indicando quando o contexto dinâmico foi injetado ou quando falhou (tratamento de erro robusto no acesso ao Redis).
+
+## *11/12/2025*
+
+## Sistema Autônomo de Recuperação de 'No-Show' e Validação de Presença com LLM
+
+**Contexto (O Problema):**
+O processo de validação de presença em aulas experimentais carecia de automação, dificultando a retenção de alunos que faltavam (no-show) e a coleta de feedback daqueles que compareciam. Havia um *gap* de comunicação pós-aula que resultava em dados inconsistentes no CRM e perda de oportunidades de reagendamento.
+
+**A Solução (O que eu fiz):**
+* **Arquitetura Assíncrona com Redis:** Projetei e implementei um serviço em **Python** que utiliza filas do **Redis** para agendar *jobs* de verificação com delay, gatilhados automaticamente 1 hora após o término da aula.
+* **Agente LLM + Sistema:** O sistema injeta o contexto do aluno (status da aula) no prompt, permitindo que o modelo tome decisões dinâmicas baseadas no estado atual.
+* **Lógica de Negócio e Atualização de Estado:** Implementei um fluxo de decisão robusto:
+    * *Cenário 1 (Presença Confirmada):* O sistema valida o dado silenciosamente, economizando tokens e evitando spam.
+    * *Cenário 2 (Incerteza):* O LLM inicia uma busca ativa. Se o aluno confirma presença, o sistema atualiza o registro via API e solicita feedback (análise de sentimento). Se o aluno confirma falta, o agente atua na retenção oferecendo novos horários (reagendamento).
+
+**Resultados & Impacto:**
+* **Automação do Ciclo de Vendas:** Eliminou a necessidade de follow-up manual por parte da equipe de vendas/atendimento para confirmação de aulas experimentais.
+* **Enriquecimento de Dados:** Garantiu que a base de dados reflita a realidade (presença/ausência) através da validação direta com o usuário final via chat.
+* **Experiência do Usuário:** Criou um ponto de contato imediato e personalizado, aumentando as chances de remarcação (recuperação de lead) em casos de imprevistos.
