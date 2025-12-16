@@ -88,3 +88,47 @@ O processo de validação de presença em aulas experimentais carecia de automa�
 * **Automação do Ciclo de Vendas:** Eliminou a necessidade de follow-up manual por parte da equipe de vendas/atendimento para confirmação de aulas experimentais.
 * **Enriquecimento de Dados:** Garantiu que a base de dados reflita a realidade (presença/ausência) através da validação direta com o usuário final via chat.
 * **Experiência do Usuário:** Criou um ponto de contato imediato e personalizado, aumentando as chances de remarcação (recuperação de lead) em casos de imprevistos.
+
+# Agosto
+
+## 11/08/2025
+
+## Otimização de Latência em Sistema LLM via Migração Arquitetural (BigQuery → Postgres)**Contexto (O Problema):**
+O sistema de gerenciamento de conversas (Human-LLM) utilizava o BigQuery como backend de persistência. Por ser um banco orientado a análises (OLAP), o BigQuery introduzia uma latência elevada e inadequada para as operações de leitura/escrita em tempo real necessárias durante o fluxo de chat, degradando a experiência do usuário (UX) e aumentando o tempo de resposta total da IA.
+
+**A Solução (O que eu fiz):**
+
+* **Refatoração do Módulo de Dados:** Reescrevi a camada de acesso a dados (Data Access Layer), desacoplando a lógica de negócio da infraestrutura e implementando repositórios otimizados para PostgreSQL.
+* **Automação de Migração (CLI):** Desenvolvi um utilitário robusto em **Bash Script** para orquestrar a migração dos dados.
+* **Estratégias de Ingestão Flexíveis:** Implementei lógica de argumentos (`flags`) no script para suportar diferentes cenários de deploy:
+* `--strategy truncate-and-load`: Para cargas iniciais ou ambientes de staging (idempotência).
+* `--strategy insert`: Para ingestão incremental sem downtime.
+* `--limit`: Para testes controlados e validação de integridade em subconjuntos de dados.
+
+
+* **Infraestrutura:** Configurei o ambiente para suportar a transição de um paradigma OLAP para OLTP.
+
+**Resultados & Impacto:**
+
+* **Redução Crítica de Latência:** A troca para o PostgreSQL reduziu drasticamente o tempo de *retrieval* do histórico de conversas, acelerando a geração de respostas do LLM.
+* **Robustez Operacional:** A ferramenta de migração automatizada eliminou erros manuais e padronizou o processo de deploy de dados entre ambientes.
+* **Melhoria de Arquitetura:** O sistema agora segue boas práticas de separação entre banco transacional (PostgreSQL para o app) e analítico (BigQuery mantido apenas para logs/analytics, se aplicável).
+
+  # Maio
+
+  ## 14/05/2025
+
+## Implementação de Observabilidade Distribuída com OpenTelemetry em Stack de GenAI**Contexto (O Problema):**
+O ecossistema de microsserviços de IA Generativa dependia de logs lineares tradicionais (`logging` padrão do Python). Isso gerava silos de informação, dificultando o rastreamento (tracing) de requisições complexas entre serviços, a identificação de gargalos de latência na inferência e o *debugging* de falhas em produção.
+
+**A Solução (O que eu fiz):**
+
+* **Migração para OpenTelemetry:** Substituí a estratégia de logging legada pela implementação do padrão de **Distributed Tracing** utilizando OpenTelemetry, garantindo aderência aos padrões da CNCF.
+* **Abstração via Decorator Pattern:** Desenvolvi uma classe utilitária (Wrapper) que expõe um *Python Decorator* customizado. Isso permite instrumentar funções e métodos automaticamente, capturando contextos, metadados e spans sem poluir a lógica de negócio ("Zero-touch instrumentation" para o time).
+* **Infraestrutura de Visualização:** Configurei e integrei o **Jaeger** via Docker na stack de microsserviços, habilitando uma interface gráfica para visualização da árvore de chamadas (Traces) e dependências.
+
+**Resultados & Impacto:**
+
+* **Visibilidade End-to-End:** Transformou o monitoramento de "caixa preta" para uma visão granular do ciclo de vida da requisição, essencial para pipelines de LLMs.
+* **Redução do MTTR (Mean Time to Recovery):** A visualização gráfica dos traces no Jaeger reduziu drasticamente o tempo necessário para identificar a causa raiz de erros e timeouts.
+* **Padronização de Código:** O uso do decorador garantiu que novos serviços nasçam observáveis por padrão, reduzindo o *boilerplate* de configuração para o restante do time.
